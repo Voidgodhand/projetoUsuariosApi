@@ -1,0 +1,37 @@
+services:
+
+  projeto-usuariosapi-springboot:
+    container_name: usuariosapi-springboot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - projeto-usuariosapi-db
+    networks:
+      - usuariosapi-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://projeto-usuariosapi-db:5432/projetoausuariosapi
+
+  projeto-usuariosapi-db:
+    image: postgres:16
+    container_name: usuariosapi-postgres
+    restart: always
+    ports:
+      - "5438:5432"
+    environment:
+      POSTGRES_DB: projetoausuariosapi
+      POSTGRES_USER: usuariosuser
+      POSTGRES_PASSWORD: usuariospassword
+    volumes:
+      - usuariosapi-data:/var/lib/postgresql/data
+    networks:
+      - usuariosapi-network
+
+volumes:
+  usuariosapi-data:
+
+networks:
+  usuariosapi-network:
+    driver: bridge
