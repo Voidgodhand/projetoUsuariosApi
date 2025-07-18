@@ -8,13 +8,17 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - projeto-usuariosapi-db
+      - projeto-usuariosapi-postgresql
+      - projeto-usuariosapi-rabbitmq
+      - projeto-usuariosapi-mailhog
     networks:
       - usuariosapi-network
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://projeto-usuariosapi-db:5432/projetoausuariosapi
+      SPRING_DATASOURCE_URL: jdbc:postgresql://projeto-usuariosapi-postgresql:5432/projetoausuariosapi
+      SPRING_RABBITMQ_HOST: projeto-usuariosapi-rabbitmq
+      SPRING_MAIL_HOST: projeto-usuariosapi-mailhog
 
-  projeto-usuariosapi-db:
+  projeto-usuariosapi-postgresql:
     image: postgres:16
     container_name: usuariosapi-postgres
     restart: always
@@ -26,6 +30,27 @@ services:
       POSTGRES_PASSWORD: usuariospassword
     volumes:
       - usuariosapi-data:/var/lib/postgresql/data
+    networks:
+      - usuariosapi-network
+
+  projeto-usuariosapi-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: usuariosapi-rabbitmq
+    ports:
+      - "5672:5672"      # Porta para conexão com apps
+      - "15672:15672"    # Porta da interface web
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - usuariosapi-network
+
+  projeto-usuariosapi-mailhog:
+    image: mailhog/mailhog
+    container_name: usuariosapi-mailhog
+    ports:
+      - "1025:1025"      # Porta SMTP
+      - "8025:8025"      # Interface web
     networks:
       - usuariosapi-network
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.cotiinformatica.components.CryptoComponent;
 import br.com.cotiinformatica.components.JwtBearerComponent;
+import br.com.cotiinformatica.components.RabbitMQProducerComponent;
 import br.com.cotiinformatica.dtos.AutenticarUsuarioRequest;
 import br.com.cotiinformatica.dtos.AutenticarUsuarioResponse;
 import br.com.cotiinformatica.dtos.CriarUsuarioRequest;
@@ -24,6 +25,7 @@ public class UsuarioService {
 	@Autowired UsuarioRepository usuarioRepository;
 	@Autowired CryptoComponent cryptoComponent;
 	@Autowired JwtBearerComponent jwtBearerComponent;
+	@Autowired RabbitMQProducerComponent rabbitMQProducerComponent;
 	
 	/*
 	 * Método para que possamos gravar 
@@ -51,6 +53,9 @@ public class UsuarioService {
 		response.setNome(usuario.getNome());
 		response.setEmail(usuario.getEmail());
 		response.setDataHoraCriacao(LocalDateTime.now());
+		
+		//enviando os dados do usuário cadastrado para a fila
+		rabbitMQProducerComponent.send(response);
 		
 		return response; //retornando e finalizando
 	}
